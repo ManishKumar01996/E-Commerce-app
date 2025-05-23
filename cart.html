@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Shopping Cart</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css"
+        integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+        integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous" />
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- NAVIGATION -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white py-3 fixed-top">
+        <div class="container">
+            <img src="img/logo1.png" alt="">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span><i id="bar" class="fas fa-bars"></i></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="shop.html">Shop</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="blog.html">Blog</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="contactus.html">Contact-Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="search.html">
+                            <i class="fas fa-search"></i>
+                        </a>
+                        <a href="cart.html">
+                            <i class="fas fa-shopping-bag"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Shopping Cart Section -->
+    <section id="blog-Home" class="pt-5 mt-5 container">
+        <h2 class="font-weight-bold pt-5">Shopping Cart</h2>
+        <hr>
+    </section>
+
+    <!-- Cart Table -->
+    <section id="cart-container" class="container my-5">
+        <table width="100%">
+            <thead>
+                <tr>
+                    <td>Remove</td>
+                    <td>Image</td>
+                    <td>Product</td>
+                    <td>Price</td>
+                    <td>Quantity</td>
+                    <td>Total</td>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Cart items will be dynamically loaded here -->
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Cart Bottom Section -->
+    <section id="cart-bottom" class="container">
+        <div class="row">
+            <!-- Coupon Section -->
+            <div class="coupon col-lg-6 col-md-6 col-12 mb-4">
+                <div>
+                    <h5>Have a coupon?</h5>
+                    <p>Enter your coupon code if you have one.</p>
+                    <input type="text" placeholder="Coupon code" id="coupon-code">
+                    <button id="apply-coupon">Apply Coupon</button>
+                </div>
+            </div>
+
+            <!-- Cart Total Section -->
+            <div class="total col-lg-6 col-md-6 col-12">
+                <div>
+                    <h5>Cart Total</h5>
+                    <div class="d-flex justify-content-between">
+                        <h6>Subtotal</h6>
+                        <p id="cart-subtotal">₹0</p>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <h6>Shipping</h6>
+                        <p id="cart-shipping">₹0</p>
+                    </div>
+                    <hr class="second-hr">
+                    <div class="d-flex justify-content-between">
+                        <h6>Total</h6>
+                        <p id="cart-total">₹0</p>
+                    </div>
+                    <button id="checkout">Place Order</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Select necessary DOM elements
+            const cartContainer = document.querySelector("#cart-container tbody");
+            const cartSubtotal = document.getElementById("cart-subtotal");
+            const cartShipping = document.getElementById("cart-shipping");
+            const cartTotal = document.getElementById("cart-total");
+            const couponInput = document.getElementById("coupon-code");
+            const applyCouponButton = document.getElementById("apply-coupon");
+            const checkoutButton = document.getElementById("checkout");
+
+            let discount = 0;
+
+            // Function to update the cart total
+            function updateCartTotal() {
+                let subtotal = 0;
+
+                // Calculate subtotal by iterating through each cart item
+                document.querySelectorAll("#cart-container tbody tr").forEach(row => {
+                    const priceText = row.querySelector("td:nth-child(4) h5").textContent.replace("₹", "").trim();
+                    const price = parseFloat(priceText);
+                    const quantity = parseInt(row.querySelector("td:nth-child(5) input").value);
+                    
+                    if (!isNaN(price) && !isNaN(quantity)) {
+                        const total = price * quantity;
+                        row.querySelector("td:nth-child(6) h5").textContent = `₹${total}`;
+                        subtotal += total;
+                    }
+                });
+
+                // Apply discount and calculate final total
+                let discountedSubtotal = subtotal - discount;
+                if (discountedSubtotal < 0) discountedSubtotal = 0;
+
+                let shipping = discountedSubtotal > 0 ? 50 : 0;
+                let finalTotal = discountedSubtotal + shipping;
+
+                // Update the DOM with the calculated values
+                cartSubtotal.textContent = `₹${subtotal}`;
+                cartShipping.textContent = `₹${shipping}`;
+                cartTotal.textContent = `₹${finalTotal}`;
+            }
+
+            // Function to load cart items from local storage
+            function loadCartItems() {
+                const cart = JSON.parse(localStorage.getItem("cart")) || [];
+                cartContainer.innerHTML = "";
+                cart.forEach(item => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td><a href="#"><i class="fas fa-trash-alt"></i></td>
+                        <td><img src="${item.image}" alt=""></td>
+                        <td><h5>${item.name}</h5></td>
+                        <td><h5>₹${item.price}</h5></td>
+                        <td><input class="w-25 pl-1" type="number" value="${item.quantity}" min="1"></td>
+                        <td><h5>₹${item.price * item.quantity}</h5></td>
+                    `;
+                    cartContainer.appendChild(row);
+                });
+                updateCartTotal();
+            }
+
+            // Event listener for quantity input change
+            cartContainer.addEventListener("input", function (event) {
+                if (event.target.type === "number") {
+                    updateCartTotal();
+                }
+            });
+
+            // Event listener for removing items from the cart
+            cartContainer.addEventListener("click", function (event) {
+                if (event.target.classList.contains("fa-trash-alt")) {
+                    event.target.closest("tr").remove();
+                    updateCartTotal();
+                }
+            });
+
+            // Event listener for applying coupon code
+            applyCouponButton.addEventListener("click", function () {
+                const couponCode = couponInput.value.trim();
+                if (couponCode === "DISCOUNT10") {
+                    let subtotal = parseFloat(cartSubtotal.textContent.replace("₹", ""));
+                    discount = subtotal * 0.1;
+                    updateCartTotal();
+                } else {
+                    alert("Invalid coupon code");
+                }
+            });
+
+            // Event listener for proceeding to checkout
+            checkoutButton.addEventListener("click", function () {
+                alert("Your Order has been placed successfully!!!");
+                localStorage.removeItem("cart");
+                cartContainer.innerHTML = "";
+                updateCartTotal();
+            });
+
+            // Load cart items on page load
+            loadCartItems();
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
